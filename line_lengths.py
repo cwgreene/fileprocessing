@@ -9,25 +9,29 @@ svgns = "http://www.w3.org/2000/svg"
 
 class Line(object):
 	def __init__(self,svgobject):
-		pointsstring = svgobject.get("d")
+		points_string = svgobject.get("d")
 		#get rid of leading "M "
-		pointsstring = pointstring[2:]
-		pointslist = map(float,pointsstring.split(","))
-		self.points = [(x,y) 	for x in pointslist[::2] 
-					for y in pointslist[1::2]]
+		points_string = points_string[2:]
+		pointslist = points_string.split(" ")
+		self.points = [(float(x),float(y)) 
+				for x,y in [point.split(",") 
+						for point in pointslist]]
+				
 
 	def length(self):
 		return sum([sqrt(x*x+y*y) for x,y in self.points])
 
 
-def get_lines(filename):
+def get_lines(filename,state={'failures':0}):
 	print filename
 	tree = etree.parse(filename)
 	lines = []
-	print "tag",tree.getroot().tag
 	for v in tree.findall("//{"+svgns+"}path"):
-		print v.get("style")
-#		lines.append(Line(v))
+		try:
+			lines.append(Line(v))
+		except:
+			state["failures"]+=1
+			print state["failures"]
 	return lines
 
 #below is useful for working out how
@@ -39,5 +43,4 @@ def printtags(filename):
 		print v.tag
 
 
-printtags(sys.argv[1])
 print [line.length() for line in get_lines(sys.argv[1])]
