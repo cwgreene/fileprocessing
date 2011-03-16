@@ -3,6 +3,7 @@
 import sys
 import os
 import re
+import matplotlib.pyplot as plt
 
 from lxml import etree
 from math import sqrt
@@ -41,8 +42,6 @@ def get_lines(filename,state={'failures':0}):
 	return lines
 
 def display(lines):
-	import matplotlib.pyplot as plt
-	plt.hist(lines,bins=30)
 	plt.show()
 
 #below is useful for working out how
@@ -52,11 +51,19 @@ def printtags(filename):
 	print dir(tree)
 	for v in tree.iter():
 		print v.tag
-lines =[]
-for file in os.listdir(sys.argv[1]):
-	file = os.path.join(sys.argv[1],file)
-	if re.match(".*\.svg$",file):
-		print file
-		lines += [line.length() for line in get_lines(file)]
-display(lines)
-print(len(lines))
+
+def handle_directory(dirname):
+	lines =[]
+	for file in os.listdir(dirname):
+		file = os.path.join(dirname,file)
+		if re.match(".*\.svg$",file):
+			print file
+			lines += [line.length() for line in get_lines(file)]
+	plt.hist(lines,bins=30)
+
+def handle_directories(dirlist):
+	for dir in dirlist:
+		handle_directory(dir)
+	plt.show()
+
+handle_directories(sys.argv[1:])
