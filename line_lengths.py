@@ -1,6 +1,8 @@
 #process svg documents and extract all lines,
 #list their lengths in pixels
 import sys
+import os
+import re
 
 from lxml import etree
 from math import sqrt
@@ -19,7 +21,11 @@ class Line(object):
 				
 
 	def length(self):
-		return sum([sqrt(x*x+y*y) for x,y in self.points])
+		first = self.points[:-1]
+		second = self.points[1:]
+		return sum([sqrt((x2-x1)**2+(y2-y1)**2) 
+			for x1,y1 in first
+			for x2,y2 in second])
 
 
 def get_lines(filename,state={'failures':0}):
@@ -34,6 +40,11 @@ def get_lines(filename,state={'failures':0}):
 			print state["failures"]
 	return lines
 
+def display(lines):
+	import matplotlib.pyplot as plt
+	plt.hist(lines,bins=30)
+	plt.show()
+
 #below is useful for working out how
 #lxml represents various tag namespaces
 def printtags(filename):
@@ -41,6 +52,11 @@ def printtags(filename):
 	print dir(tree)
 	for v in tree.iter():
 		print v.tag
-
-
-print [line.length() for line in get_lines(sys.argv[1])]
+lines =[]
+for file in os.listdir(sys.argv[1]):
+	file = os.path.join(sys.argv[1],file)
+	if re.match(".*\.svg$",file):
+		print file
+		lines += [line.length() for line in get_lines(file)]
+display(lines)
+print(len(lines))
