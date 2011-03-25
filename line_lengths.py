@@ -3,10 +3,15 @@
 import sys
 import os
 import re
+
+import numpy as np
 import matplotlib.pyplot as plt
 
 from lxml import etree
 from math import sqrt
+
+
+import pathpair
 
 svgns = "http://www.w3.org/2000/svg"
 
@@ -54,16 +59,29 @@ def printtags(filename):
 
 def handle_directory(dirname):
 	lines =[]
-	for file in os.listdir(dirname):
-		file = os.path.join(dirname,file)
-		if re.match(".*\.svg$",file):
-			print file
-			lines += [line.length() for line in get_lines(file)]
-	plt.hist(lines,bins=30)
+	svgpairs = dict(pathpair.pairwith(dirname))
+	print svgpairs
+
+	
+	files = [file for file in os.listdir(dirname)
+			if re.match(".*\.svg$",file)]
+	areas = []
+
+	for filename in files:
+		file = os.path.join(dirname,filename)
+		print filename
+		pixellength=pathpair.pixelsize(svgpairs[filename])
+		areas.append(640*480*pixellength**2)
+		lines += [line.length() *pixellength
+				for line in get_lines(file)]
+	plt.hist(lines,bins=30, normed=True,
+			weights=np.ones(len(lines)))
 
 def handle_directories(dirlist):
+	i=0
 	for dir in dirlist:
 		handle_directory(dir)
-	plt.show()
+		plt.savefig('test'+str(i)+'.png')
+		i+=1
 
 handle_directories(sys.argv[1:])

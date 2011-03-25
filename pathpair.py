@@ -16,6 +16,7 @@ def pairwith(directory):
 	pairs = []
 	for svgfile in files["svg"]:
 		#get number
+		print svgfile
 		num,mag = re.findall("random([0-9]+)_(.*)\.svg",svgfile)[0]
 		print svgfile,num,mag
 		for txtfile in files["txt"]:
@@ -25,8 +26,7 @@ def pairwith(directory):
 				break
 	return pairs
 
-def pixelsize(pair):
-	svgfile,txtfile = pair
+def pixelsize(txtfile):
 	for line in open(txtfile):
 		if line.find("PixelSize") != -1:
 			tag,value=line.split("=")
