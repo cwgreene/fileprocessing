@@ -59,6 +59,8 @@ def printtags(filename):
 
 def handle_directory(dirname):
 	lines =[]
+	print "HERE"
+	print pathpair.pairwith(dirname)
 	svgpairs = dict(pathpair.pairwith(dirname))
 	print svgpairs
 
@@ -69,11 +71,14 @@ def handle_directory(dirname):
 
 	for filename in files:
 		file = os.path.join(dirname,filename)
-		print filename
 		pixellength=pathpair.pixelsize(svgpairs[filename])
 		areas.append(640*480*pixellength**2)
-		lines += [line.length() *pixellength
+		lines += [line.length() *pixellength*.001
 				for line in get_lines(file)]
+	if files == []:
+		print "no files"
+		return
+	print np.mean(lines)
 	plt.hist(lines,bins=30, normed=True,
 			weights=np.ones(len(lines)))
 
@@ -83,5 +88,6 @@ def handle_directories(dirlist):
 		handle_directory(dir)
 		plt.savefig('test'+str(i)+'.png')
 		i+=1
+	plt.show()
 
 handle_directories(sys.argv[1:])

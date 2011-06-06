@@ -2,6 +2,7 @@ import os
 import sys
 import re
 
+print "yo"
 def pairwith(directory):
 	extensions  = ["svg","txt"]
 	files = {}
